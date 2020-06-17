@@ -9,7 +9,7 @@
 #define RECV_PORT 5367
 #define SEND_PORT 6367
 #define LOCAL_IP "127.0.0.1"
-#define FOREIGN_IP "192.168.1.14"
+#define FOREIGN_IP "192.168.1.13"
 
 #define BUFF_SIZE 32
 
@@ -35,14 +35,21 @@ void buffer_extraction(unsigned char buffer[]) {
 }
 
 int main() {
-    int sockfd;
+    int sock_server;
+    int sock_client;
+
     struct sockaddr_in servaddr;
     struct sockaddr_in remaddr;
     socklen_t addrlen = sizeof(remaddr);
     struct sockaddr_in clientaddr;
 
-    // Create socket file descriptor
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    // Create socket file descriptor for server
+    if ((sock_server = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        exit(-1);
+    }
+
+    // Create socket file descriptor for client
+    if ((sock_client = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         exit(-1);
     }
 
@@ -60,15 +67,17 @@ int main() {
     clientaddr.sin_addr.s_addr = inet_addr(FOREIGN_IP);
     
     // Bind to server
-    if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+    if (bind(sock_server, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
         exit(-1);
     }
 
     while (1) {
         unsigned char *buffer[BUFF_SIZE];
-        int size = recvfrom(sockfd, buffer, BUFF_SIZE, 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
+        int size = recvfrom(sock_server, buffer, BUFF_SIZE, 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
         printf("Size received: %d\n", size);
         buffer_extraction(buffer);
+
+        int status = sendto(sock_client, buffer, BUFF_SIZE, 0, (const struct sockaddr *)&clientaddr, sizeof(clientaddr));
 
     }
 }
