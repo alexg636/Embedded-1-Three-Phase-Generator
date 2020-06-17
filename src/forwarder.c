@@ -11,15 +11,27 @@
 #define LOCAL_IP "127.0.0.1"
 #define FOREIGN_IP "192.168.1.14"
 
-#define BUFF_SIZE 4
-double buffer[BUFF_SIZE];
+#define BUFF_SIZE 32
 
-void buffer_extraction(void) {
-    printf("Degrees: %f\n", *(buffer));
-    for (int i=1; i<4; i++) {
-        printf("Phase %d: %f\n", i, buffer[i]);
+void buffer_extraction(unsigned char buffer[]) {
+    int i;
+    printf("\nDegree is:");
+    for (i=0;i<8;i++) {
+        printf ("%02x", buffer[i]);
     }
-    printf("\n");
+    printf("\nPhase 1 is:");
+    for (i=8;i<16;i++) {
+        printf ("%02x", buffer[i]);
+    }
+    printf("\nPhase 2 is:");
+    for (i=16;i<24;i++) {
+        printf ("%02x", buffer[i]);
+    }
+    printf("\nPhase 3 is:");
+    for (i=24;i<32;i++) {
+        printf ("%02x", buffer[i]);
+    }
+    printf("\n\n");
 }
 
 int main() {
@@ -53,9 +65,10 @@ int main() {
     }
 
     while (1) {
-    int size = recvfrom(sockfd, (char *)buffer, BUFF_SIZE, 0, (struct sockaddr *)&remaddr, sizeof(addrlen));
-    printf("Size received: %d\n", size);
-    buffer_extraction();
+        unsigned char *buffer[BUFF_SIZE];
+        int size = recvfrom(sockfd, buffer, BUFF_SIZE, 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
+        printf("Size received: %d\n", size);
+        buffer_extraction(buffer);
 
     }
 }
