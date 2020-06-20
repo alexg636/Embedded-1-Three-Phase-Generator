@@ -9,7 +9,7 @@
 #define RECV_PORT 5367
 #define SEND_PORT 6367
 #define LOCAL_IP "127.0.0.1"
-#define FOREIGN_IP "192.168.1.13"
+#define FOREIGN_IP "192.168.1.20"
 
 #define BUFF_SIZE 32
 
